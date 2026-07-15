@@ -1,0 +1,53 @@
+---
+- name: Installer WordPress
+  hosts: gcp
+  become: true
+
+  vars:
+    project_dest: /opt/wordpress
+    wp_container: wordpress
+    wp_path: /var/www/html
+
+  tasks:
+    - name: Attendre que la base de données soit prête
+      ansible.builtin.command:
+        argv:
+          - docker
+          - exec
+          - "{{ wp_container }}"
+          - wp
+          - db
+          - check
+          - "--path={{ wp_path }}"
+      register: db_ready
+      retries: 30
+      delay: 5
+      until: db_ready.rc == 0
+      changed_when: false
+
+    - name: Vérifier si WordPress est déjà installé
+      ansible.builtin.command:
+        argv:
+          - docker
+          - exec
+          - "{{ wp_container }}"
+          - wp
+          - core
+          - is-installed
+          - "--path={{ wp_path }}"
+      register: wp_installed
+      failed_when: false
+      changed_when: false
+
+    - name: Installer WordPress
+      ansible.builtin.shell: |
+        docker exec {{ wp_container }} sh -c '
+          wp core install \
+            --path="{{ wp_path }}" \
+            --url="$WORDPRESS_URL" \
+            --title="$WORDPRESS_TITLE" \
+            --admin_user="$WORDPRESS_ADMIN_USER" \
+            --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
+            --admin_email="$WORDPRESS_ADMIN_EMAIL"
+        '
+      when: wp_installed.rc != 0

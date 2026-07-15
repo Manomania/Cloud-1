@@ -1,0 +1,31 @@
+---
+- name: Copy Project files
+  hosts: gcp
+  become: true
+
+  vars:
+    project_src: "{{ playbook_dir }}/../"
+    project_dest: /opt/wordpress
+
+  tasks:
+    - name: Make project directory
+      ansible.builtin.file:
+        path: "{{ project_dest }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy project
+      ansible.builtin.copy:
+        src: "{{ project_src }}/"
+        dest: "{{ project_dest }}/"
+
+    - name: Build and run containers
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - up
+          - "-d"
+          - "--build"
+      args:
+        chdir: "{{ project_dest }}"
