@@ -25,3 +25,4 @@ gcloud billing budgets list --billing-account='BILLING-ACCOUNT'
 gcloud billing budgets delete 'NAME-BUDGET' --billing-account='BILLING-ACCOUNT'
 
 
+gcloud compute instances create cloud-1-test --image=debian-13-trixie-arm64-v20260714 --image-project=debian-cloud --zone=europe-west9-b --machine-type=e2-micro
