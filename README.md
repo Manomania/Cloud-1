@@ -1,13 +1,23 @@
 gcloud init
+
 gcloud auth login
+
 gcloud auth list
+
+
+
 gcloud config set account 'ACCOUNT'
 
 gcloud projects list
+
+
 gcloud config set project 'ID-PROJECT'
 
 gcloud billing accounts list
+
+
 gcloud config get-value project
+
 
 gcloud billing budgets create \
 --billing-account='BILLING-ACOUNT' \
@@ -22,7 +32,10 @@ gcloud billing budgets create \
 
 gcloud billing budgets list --billing-account='BILLING-ACCOUNT'
 
+
 gcloud billing budgets delete 'NAME-BUDGET' --billing-account='BILLING-ACCOUNT'
 
 
-gcloud compute instances create cloud-1-test --image=debian-13-trixie-arm64-v20260714 --image-project=debian-cloud --zone=europe-west9-b --machine-type=e2-micro
+gcloud compute instances create cloud-1-test --tags="cloud-1-web" --image=debian-13-trixie-arm64-v20260714 --image-project=debian-cloud --zone=europe-west9-b --machine-type=e2-micro
+
+gcloud compute firewall-rules create allow-http-https-ssh --target-tags=cloud-1-web --action=allow --rules=tcp:80,tcp:443,tcp:22
