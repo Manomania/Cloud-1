@@ -29,7 +29,6 @@ gcloud billing budgets create \
 --threshold-rule=percent=0.5 \
 --threshold-rule=percent=0.9
 
-
 gcloud billing budgets list --billing-account='BILLING-ACCOUNT'
 
 
