@@ -29,7 +29,7 @@ services:
       - cloud-1
 
   wordpress:
-    image: wordpress:php8.2-fpm
+    build: ./services/wordpress
     container_name: wordpress
     restart: always
     depends_on:

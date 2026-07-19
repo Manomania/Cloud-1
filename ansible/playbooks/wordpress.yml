@@ -4,17 +4,48 @@
   become: true
 
   vars:
-    project_dest: /opt/wordpress
     wp_container: wordpress
     wp_path: /var/www/html
 
   tasks:
+
+    - name: Attendre que wp-config.php soit généré
+      ansible.builtin.command:
+        argv:
+          - docker
+          - exec
+          - "{{ wp_container }}"
+          - test
+          - -f
+          - "{{ wp_path }}/wp-config.php"
+      register: wp_config
+      retries: 12
+      delay: 5
+      until: wp_config.rc == 0
+      changed_when: false
+
+    - name: Attendre que MariaDB accepte les connexions
+      ansible.builtin.command:
+        argv:
+          - docker
+          - exec
+          - mariadb
+          - healthcheck.sh
+          - --connect
+          - --innodb_initialized
+      register: db_ready
+      retries: 12
+      delay: 5
+      until: db_ready.rc == 0
+      changed_when: false
 
     - name: Vérifier si WordPress est déjà installé
       ansible.builtin.command:
         argv:
           - docker
           - exec
+          - -u
+          - www-data
           - "{{ wp_container }}"
           - wp
           - core
@@ -26,13 +57,14 @@
 
     - name: Installer WordPress
       ansible.builtin.shell: |
-        docker exec {{ wp_container }} sh -c '
+        docker exec -u www-data {{ wp_container }} sh -c '
           wp core install \
             --path="{{ wp_path }}" \
-            --url="$WORDPRESS_URL" \
-            --title="$WORDPRESS_TITLE" \
-            --admin_user="$WORDPRESS_ADMIN_USER" \
-            --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
-            --admin_email="$WORDPRESS_ADMIN_EMAIL"
+            --url="$WP_URL" \
+            --title="$WP_TITLE" \
+            --admin_user="$WP_ADMIN_USER" \
+            --admin_password="$WP_ADMIN_PASSWORD" \
+            --admin_email="$WP_ADMIN_EMAIL" \
+            --skip-email
         '
       when: wp_installed.rc != 0

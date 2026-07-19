@@ -47,5 +47,4 @@
           - "--build"
       args:
         chdir: "{{ project_dest }}"
-
-# - import_playbook: wordpress.yml
+- import_playbook: wordpress.yml
