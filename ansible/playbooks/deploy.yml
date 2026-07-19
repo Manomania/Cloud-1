@@ -1,14 +1,22 @@
 - import_playbook: docker.yml
-- name: Deploy Project on virtual machine
+- name: Application deployment...
   hosts: gcp
   become: true
 
+  collections:
+    - ansible.posix
   vars:
     project_src: "{{ playbook_dir }}/../../"
     project_dest: /opt/cloud-1
 
   tasks:
-    - name: Make project directory
+
+    - name: install rsync for files deployment
+      apt:
+        name: rsync
+        update_cache: yes
+  
+    - name: make project directory
       ansible.builtin.file:
         path: "{{ item }}"
         state: directory
@@ -19,12 +27,13 @@
         - "{{ project_dest }}/volumes/wordpress"
         - "{{ project_dest }}/volumes/mariadb"
 
-    - name: Copy project
-      ansible.builtin.copy:
+    - name: deploy files on hosts
+      ansible.posix.synchronize:
         src: "{{ project_src }}/"
         dest: "{{ project_dest }}/"
+        delete: no
 
-    - name: Build and run containers
+    - name: build and run containers
       ansible.builtin.command:
         argv:
           - docker
@@ -34,4 +43,5 @@
           - "--build"
       args:
         chdir: "{{ project_dest }}"
-# - import_playbook: wp_install.yml
+
+# - import_playbook: wordpress.yml

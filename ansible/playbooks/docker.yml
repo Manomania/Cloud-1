@@ -1,5 +1,5 @@
 ---
-- name: Install Docker
+- name: Install Docker on hosts
   hosts: gcp
   become: true
 
@@ -12,11 +12,11 @@
       - docker-compose-plugin
 
   tasks:
-    - name: Update apt cache
+    - name: update apt cache
       apt:
         update_cache: yes
 
-    - name: Install required packages
+    - name: install required packages
       apt:
         name:
           - ca-certificates
@@ -25,46 +25,46 @@
           - lsb-release
         state: present
 
-    - name: Create keyrings directory
+    - name: create keyrings directory
       file:
         path: /etc/apt/keyrings
         state: directory
         mode: '0755'
 
-    - name: Add Docker official GPG key
+    - name: add Docker official GPG key
       get_url:
         url: https://download.docker.com/linux/debian/gpg
         dest: /etc/apt/keyrings/docker.asc
         mode: '0644'
 
-    - name: Add Docker repository
+    - name: add Docker repository
       apt_repository:
         repo: "deb [arch={{ ansible_architecture | regex_replace('x86_64', 'amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
         state: present
         filename: docker
 
-    - name: Update apt cache after adding Docker repository
+    - name: update apt cache after adding Docker repository
       apt:
         update_cache: yes
 
-    - name: Install Docker and its components
+    - name: install Docker and its components
       apt:
         name: "{{ docker_packages }}"
         state: present
 
-    - name: Ensure Docker is started and enabled
+    - name: ensure Docker is started and enabled
       systemd:
         name: docker
         state: started
         enabled: true
 
-    - name: Add user to the docker group
+    - name: add user to the Docker group
       user:
         name: "{{ ansible_user }}"
         groups: docker
         append: true
 
-    - name: Install Python Docker module for Ansible
+    - name: install python Docker module for Ansible
       apt:
         name: python3-docker
         state: present
