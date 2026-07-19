@@ -1,10 +1,11 @@
 services:
 
   nginx: 
-    build: ./nginx
+    build: ./services/nginx
     container_name: nginx
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - wordpress
     volumes:
@@ -13,7 +14,7 @@ services:
       - cloud-1
 
   mariadb:
-    build: ./mariadb
+    build: ./services/mariadb
     container_name: mariadb
     restart: always
     environment:
@@ -27,7 +28,7 @@ services:
       - cloud-1
 
   wordpress:
-    build: ./wordpress
+    image: wordpress:php8.2-fpm
     container_name: wordpress
     restart: always
     depends_on:
@@ -48,7 +49,7 @@ services:
       - cloud-1
 
   phpmyadmin:
-    build: ./phpmyadmin
+    image: phpmyadmin:latest
     container_name: phpmyadmin
     restart: always
     depends_on:
