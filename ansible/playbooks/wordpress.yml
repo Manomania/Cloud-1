@@ -9,21 +9,6 @@
     wp_path: /var/www/html
 
   tasks:
-    - name: Attendre que la base de données soit prête
-      ansible.builtin.command:
-        argv:
-          - docker
-          - exec
-          - "{{ wp_container }}"
-          - wp
-          - db
-          - check
-          - "--path={{ wp_path }}"
-      register: db_ready
-      retries: 30
-      delay: 5
-      until: db_ready.rc == 0
-      changed_when: false
 
     - name: Vérifier si WordPress est déjà installé
       ansible.builtin.command:

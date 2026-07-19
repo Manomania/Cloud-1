@@ -1,3 +1,4 @@
+- import_playbook: docker_install.yml
 ---
 - name: Copy Project files
   hosts: gcp
@@ -29,3 +30,5 @@
           - "--build"
       args:
         chdir: "{{ project_dest }}"
+---
+# - import_playbook: wp_install.yml
