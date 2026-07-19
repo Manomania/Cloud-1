@@ -32,6 +32,10 @@
         src: "{{ project_src }}/"
         dest: "{{ project_dest }}/"
         delete: no
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=README.md"
+          - "--exclude=ansible/"
 
     - name: build and run containers
       ansible.builtin.command:
