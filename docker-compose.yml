@@ -3,6 +3,7 @@ services:
   nginx: 
     build: ./services/nginx
     container_name: nginx
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -54,14 +55,25 @@ services:
     restart: always
     depends_on:
       - mariadb
-    ports:
-      - "8081:80"
     networks:
       - cloud-1
 
 volumes:
   db_data:
+    name: "database-volume"
+    driver: local
+    driver_opts:
+      type: none
+      device: /opt/cloud-1/volumes/mariadb
+      o: bind
+
   wordpress_data:
+    name: "wordpress-volume"
+    driver: local
+    driver_opts:
+      type: none
+      device: /opt/cloud-1/volumes/wordpress
+      o: bind
 
 networks:
   cloud-1:
