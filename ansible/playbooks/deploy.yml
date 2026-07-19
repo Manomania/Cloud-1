@@ -1,19 +1,23 @@
-- import_playbook: docker_install.yml
----
-- name: Copy Project files
+- import_playbook: docker.yml
+- name: Deploy Project on virtual machine
   hosts: gcp
   become: true
 
   vars:
-    project_src: "{{ playbook_dir }}/../"
-    project_dest: /opt/wordpress
+    project_src: "{{ playbook_dir }}/../../"
+    project_dest: /opt/cloud-1
 
   tasks:
     - name: Make project directory
       ansible.builtin.file:
-        path: "{{ project_dest }}"
+        path: "{{ item }}"
         state: directory
         mode: "0755"
+      loop:
+        - "{{ project_dest }}"
+        - "{{ project_dest }}/volumes"
+        - "{{ project_dest }}/volumes/wordpress"
+        - "{{ project_dest }}/volumes/mariadb"
 
     - name: Copy project
       ansible.builtin.copy:
@@ -30,5 +34,4 @@
           - "--build"
       args:
         chdir: "{{ project_dest }}"
----
 # - import_playbook: wp_install.yml
