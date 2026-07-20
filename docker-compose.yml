@@ -59,9 +59,13 @@ services:
   phpmyadmin:
     image: phpmyadmin:5.2
     container_name: phpmyadmin
+    environment:
+      PMA_HOST: mariadb
+      PMA_ABSOLUTE_URI: ${WP_URL}/phpmyadmin/
     restart: always
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     networks:
       - cloud-1
 

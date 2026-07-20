@@ -14,18 +14,18 @@
     state: present
 
 - name: Allow root SSH login with public key only
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^#?PermitRootLogin'
-    line: 'PermitRootLogin prohibit-password'
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-cloud-1-root-login.conf
+    content: "PermitRootLogin prohibit-password\n"
+    owner: root
+    group: root
+    mode: '0644'
     validate: '/usr/sbin/sshd -t -f %s'
   notify: Restart sshd
 
-- name: Grant root the same authorized keys as the deploy user
-  ansible.builtin.copy:
-    src: "/home/{{ ansible_user }}/.ssh/authorized_keys"
-    dest: /root/.ssh/authorized_keys
-    remote_src: true
-    owner: root
-    group: root
-    mode: '0600'
+- name: Grant root SSH access to team members
+  ansible.posix.authorized_key:
+    user: root
+    key: "{{ item }}"
+    state: present
+  loop: "{{ root_authorized_keys }}"

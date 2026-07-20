@@ -9,16 +9,6 @@
   until: wp_config is succeeded
   changed_when: false
 
-- name: Wait for wp-config.php to be generated
-  community.docker.docker_container_exec:
-    container: "{{ wp_container }}"
-    command: "test -f {{ wp_path }}/wp-config.php"
-  register: wp_config
-  retries: 20
-  delay: 5
-  until: wp_config is succeeded
-  changed_when: false
-
 - name: Wait for MariaDB to accept connections
   community.docker.docker_container_exec:
     container: mariadb
@@ -54,4 +44,4 @@
       - "--admin_email={{ wp_admin_email }}"
       - "--skip-email"
   when: wp_installed.rc != 0
-  no_log: true
+  no_log: false
