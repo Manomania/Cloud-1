@@ -1,0 +1,4 @@
+---
+collections: #distrib package
+  - name: ansible.posix
+  - name: community.docker

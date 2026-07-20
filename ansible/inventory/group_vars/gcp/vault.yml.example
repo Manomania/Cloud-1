@@ -1,0 +1,8 @@
+---
+vault_mysql_root_password: 
+vault_mysql_database:      
+vault_mysql_user:          
+vault_mysql_password:      
+vault_wp_admin_user:       
+vault_wp_admin_password:   
+vault_wp_admin_email:      

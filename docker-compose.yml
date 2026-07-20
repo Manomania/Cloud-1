@@ -25,6 +25,12 @@ services:
       MYSQL_PASSWORD: $MYSQL_PASSWORD
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - cloud-1
 
@@ -33,7 +39,8 @@ services:
     container_name: wordpress
     restart: always
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     environment:
       WORDPRESS_DB_HOST: $WORDPRESS_DB_HOST
       WORDPRESS_DB_NAME: $WORDPRESS_DB_NAME
@@ -50,7 +57,7 @@ services:
       - cloud-1
 
   phpmyadmin:
-    image: phpmyadmin:latest
+    image: phpmyadmin:5.2
     container_name: phpmyadmin
     restart: always
     depends_on:
