@@ -45,3 +45,19 @@
       - "--skip-email"
   when: wp_installed.rc != 0
   no_log: false
+
+- name: Create additional WordPress admin
+  community.docker.docker_container_exec:
+    container: "{{ wp_container }}"
+    user: www-data
+    argv:
+      - wp
+      - user
+      - create
+      - "{{ wp_admin2_user }}"
+      - "{{ wp_admin2_email }}"
+      - "--role=administrator"
+      - "--user_pass={{ wp_admin2_password }}"
+      - "--path={{ wp_path }}"
+  when: wp_installed.rc != 0
+  no_log: false
