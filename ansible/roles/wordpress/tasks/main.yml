@@ -46,6 +46,24 @@
   when: wp_installed.rc != 0
   no_log: false
 
+- name: Set dynamic WP_HOME and WP_SITEURL constants
+  community.docker.docker_container_exec:
+    container: "{{ wp_container }}"
+    user: www-data
+    argv:
+      - wp
+      - config
+      - set
+      - "{{ item }}"
+      - '"https://" . $_SERVER["HTTP_HOST"]'
+      - "--raw"
+      - "--type=constant"
+      - "--path={{ wp_path }}"
+  loop:
+    - WP_HOME
+    - WP_SITEURL
+  when: wp_installed.rc != 0
+  
 - name: Create additional WordPress admin
   community.docker.docker_container_exec:
     container: "{{ wp_container }}"

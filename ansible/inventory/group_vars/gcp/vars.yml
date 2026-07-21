@@ -1,6 +1,6 @@
 ---
 project_dest: /opt/cloud-1
-domain_name: supersite.software
+domain_name: localhost
 
 wp_title: "Cloud-1"
 
@@ -18,5 +18,5 @@ wp_admin2_password: "{{ vault_wp_admin2_password }}"
 wp_admin2_email:    "{{ vault_wp_admin2_email }}"
 
 root_authorized_keys:
-  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO8jfVDAnjFJwJK9bWu7zfgIUWhz+lnP/CvtpOMUhNTl maximart@maximart"
-  # - "ssh-ed25519 AAAA... faoriol"
+  - "{{ vault_ssh_key_maximart }}"
+  - "{{ vault_ssh_key_faoriol }}"
