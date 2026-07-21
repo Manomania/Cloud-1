@@ -1,0 +1,63 @@
+---
+- name: Wait for wp-config.php to be generated
+  community.docker.docker_container_exec:
+    container: "{{ wp_container }}"
+    command: "test -f {{ wp_path }}/wp-config.php"
+  register: wp_config
+  retries: 20
+  delay: 5
+  until: wp_config is succeeded
+  changed_when: false
+
+- name: Wait for MariaDB to accept connections
+  community.docker.docker_container_exec:
+    container: mariadb
+    command: "healthcheck.sh --connect --innodb_initialized"
+  register: db_ready
+  retries: 20
+  delay: 5
+  until: db_ready is succeeded
+  changed_when: false
+
+- name: Check whether WordPress is already installed
+  community.docker.docker_container_exec:
+    container: "{{ wp_container }}"
+    user: www-data
+    command: "wp core is-installed --path={{ wp_path }}"
+  register: wp_installed
+  failed_when: false
+  changed_when: false
+
+- name: Install WordPress core
+  community.docker.docker_container_exec:
+    container: "{{ wp_container }}"
+    user: www-data
+    argv:
+      - wp
+      - core
+      - install
+      - "--path={{ wp_path }}"
+      - "--url={{ wp_url }}"
+      - "--title={{ wp_title }}"
+      - "--admin_user={{ wp_admin_user }}"
+      - "--admin_password={{ wp_admin_password }}"
+      - "--admin_email={{ wp_admin_email }}"
+      - "--skip-email"
+  when: wp_installed.rc != 0
+  no_log: false
+
+- name: Create additional WordPress admin
+  community.docker.docker_container_exec:
+    container: "{{ wp_container }}"
+    user: www-data
+    argv:
+      - wp
+      - user
+      - create
+      - "{{ wp_admin2_user }}"
+      - "{{ wp_admin2_email }}"
+      - "--role=administrator"
+      - "--user_pass={{ wp_admin2_password }}"
+      - "--path={{ wp_path }}"
+  when: wp_installed.rc != 0
+  no_log: false

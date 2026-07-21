@@ -1,0 +1,3 @@
+---
+wp_container: wordpress
+wp_path: /var/www/html

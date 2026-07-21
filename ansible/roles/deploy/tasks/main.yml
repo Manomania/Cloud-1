@@ -1,0 +1,51 @@
+---
+- name: Create project directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - "{{ project_dest }}"
+    - "{{ project_dest }}/volumes"
+
+- name: Create data volume directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ project_dest }}/volumes/wordpress"
+    - "{{ project_dest }}/volumes/mariadb"
+
+- name: Sync project sources to the remote host
+  ansible.posix.synchronize:
+    src: "{{ project_src }}/"
+    dest: "{{ project_dest }}/"
+    delete: false
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=ansible/"
+      - "--exclude=.env"
+      - "--exclude=.vault_pass"
+      - "--exclude=ansible.cfg"
+      - "--no-perms"
+      - "--no-owner"
+      - "--no-group"
+      - "--omit-dir-times"
+
+- name: Render .env from vaulted variables
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ project_dest }}/.env"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Bring the compose stack up
+  community.docker.docker_compose_v2:
+    project_src: "{{ project_dest }}"
+    state: present
+    build: policy
+    remove_orphans: true

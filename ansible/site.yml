@@ -1,0 +1,13 @@
+---
+- name: Deploy Cloud-1 stack
+  hosts: gcp
+  become: true
+  roles:
+    - role: common
+      tags: [common]
+    - role: docker
+      tags: [docker]
+    - role: deploy
+      tags: [deploy]
+    - role: wordpress
+      tags: [wordpress]

@@ -1,0 +1,91 @@
+services:
+
+  nginx: 
+    build: ./services/nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - wordpress
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - cloud-1
+
+  mariadb:
+    build: ./services/mariadb
+    container_name: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - cloud-1
+
+  wordpress:
+    build: ./services/wordpress
+    container_name: wordpress
+    restart: always
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: $WORDPRESS_DB_HOST
+      WORDPRESS_DB_NAME: $WORDPRESS_DB_NAME
+      WORDPRESS_DB_USER: $WORDPRESS_DB_USER
+      WORDPRESS_DB_PASSWORD: $WORDPRESS_DB_PASSWORD
+      WP_URL: $WP_URL
+      WP_TITLE: $WP_TITLE
+      WP_ADMIN_USER: $WP_ADMIN_USER
+      WP_ADMIN_PASSWORD: $WP_ADMIN_PASSWORD
+      WP_ADMIN_EMAIL: $WP_ADMIN_EMAIL
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - cloud-1
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mariadb
+      PMA_ABSOLUTE_URI: ${WP_URL}/phpmyadmin/
+    restart: always
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - cloud-1
+
+volumes:
+  db_data:
+    name: "database-volume"
+    driver: local
+    driver_opts:
+      type: none
+      device: /opt/cloud-1/volumes/mariadb
+      o: bind
+
+  wordpress_data:
+    name: "wordpress-volume"
+    driver: local
+    driver_opts:
+      type: none
+      device: /opt/cloud-1/volumes/wordpress
+      o: bind
+
+networks:
+  cloud-1:
+    driver: bridge

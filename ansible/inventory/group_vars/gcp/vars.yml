@@ -1,0 +1,22 @@
+---
+project_dest: /opt/cloud-1
+domain_name: supersite.software
+
+wp_title: "Cloud-1"
+
+mysql_root_password: "{{ vault_mysql_root_password }}"
+mysql_database:      "{{ vault_mysql_database }}"
+mysql_user:          "{{ vault_mysql_user }}"
+mysql_password:      "{{ vault_mysql_password }}"
+
+wp_url:             "https://{{ domain_name }}"
+wp_admin_user:      "{{ vault_wp_admin_user }}"
+wp_admin_password:  "{{ vault_wp_admin_password }}"
+wp_admin_email:     "{{ vault_wp_admin_email }}"
+wp_admin2_user:     "{{ vault_wp_admin2_user }}"
+wp_admin2_password: "{{ vault_wp_admin2_password }}"
+wp_admin2_email:    "{{ vault_wp_admin2_email }}"
+
+root_authorized_keys:
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO8jfVDAnjFJwJK9bWu7zfgIUWhz+lnP/CvtpOMUhNTl maximart@maximart"
+  # - "ssh-ed25519 AAAA... faoriol"
