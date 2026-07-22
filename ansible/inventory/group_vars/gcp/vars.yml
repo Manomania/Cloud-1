@@ -1,6 +1,6 @@
 ---
 project_dest: /opt/cloud-1
-domain_name: localhost
+domain_name: "{{ ansible_host }}"
 
 wp_title: "Cloud-1"
 
