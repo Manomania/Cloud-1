@@ -44,7 +44,6 @@
       - "--admin_email={{ wp_admin_email }}"
       - "--skip-email"
   when: wp_installed.rc != 0
-  no_log: false
 
 - name: Set dynamic WP_HOME and WP_SITEURL constants
   community.docker.docker_container_exec:
@@ -78,4 +77,3 @@
       - "--user_pass={{ wp_admin2_password }}"
       - "--path={{ wp_path }}"
   when: wp_installed.rc != 0
-  no_log: false
